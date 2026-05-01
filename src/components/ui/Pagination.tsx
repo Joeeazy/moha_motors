@@ -22,7 +22,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pr
   }
 
   return (
-    <div className="flex items-center justify-center gap-1 mt-10">
+    <div className="flex items-center justify-center gap-1 mt-8 sm:mt-10 flex-wrap">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -33,7 +33,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pr
 
       {pages.map((page, i) =>
         page === '...' ? (
-          <span key={`ellipsis-${i}`} className="px-3 py-2 text-gray-400 text-sm">…</span>
+          <span key={`ellipsis-${i}`} className="px-2 py-2 text-gray-400 text-sm">…</span>
         ) : (
           <button
             key={page}
