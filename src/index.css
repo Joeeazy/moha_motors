@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-maroon-50: #fff1f3;
+  --color-maroon-100: #ffe0e5;
+  --color-maroon-200: #ffc1cb;
+  --color-maroon-300: #ff92a3;
+  --color-maroon-400: #ff5474;
+  --color-maroon-500: #ff1f47;
+  --color-maroon-600: #ed0034;
+  --color-maroon-700: #c8002a;
+  --color-maroon-800: #8b1a2b;
+  --color-maroon-900: #6b0f1f;
+  --color-maroon-950: #3d0010;
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #1a1a1a;
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
