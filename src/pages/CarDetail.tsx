@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useVehicle } from '../hooks/useVehicle'
 import { submitInquiry } from '../api/inquiries'
 import { fetchWhatsAppNumber } from '../api/inquiries'
-import { useQuery } from '@tanstack/react-query'
+import { fetchVehicles } from '../api/vehicles'
 import { formatPrice, formatMileage, capitalize, buildWhatsAppUrl } from '../utils/format'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import WhatsAppButton from '../components/ui/WhatsAppButton'
+import CarCard from '../components/ui/CarCard'
 import type { InquiryCreate } from '../types'
 
 const FALLBACK = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80'
@@ -24,6 +25,17 @@ export default function CarDetail() {
     queryFn: fetchWhatsAppNumber,
     staleTime: Infinity,
   })
+
+  const { data: similarData } = useQuery({
+    queryKey: ['vehicles', 'similar', vehicle?.brand?.id],
+    queryFn: () => fetchVehicles({ brand_id: String(vehicle!.brand.id) }),
+    enabled: !!vehicle,
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const similarVehicles = (similarData?.items ?? [])
+    .filter(v => v.id !== vehicle?.id)
+    .slice(0, 4)
 
   const mutation = useMutation({
     mutationFn: (data: InquiryCreate) => submitInquiry(data),
@@ -301,6 +313,32 @@ export default function CarDetail() {
               </button>
             </form>
           )}
+        </div>
+      </div>
+
+      {/* Similar Vehicles */}
+      <div className="mt-16">
+        <div className="flex items-center justify-between mb-6">
+          <h2
+            className="text-2xl font-bold text-gray-900"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            Similar Vehicles
+          </h2>
+          <Link
+            to={`/inventory?brand_id=${vehicle.brand.id}`}
+            className="text-sm font-semibold text-maroon-700 hover:text-maroon-900 transition-colors inline-flex items-center gap-1"
+          >
+            View all
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {similarVehicles.map(v => (
+            <CarCard key={v.id} vehicle={v} />
+          ))}
         </div>
       </div>
 
