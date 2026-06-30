@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useBrands } from '../../hooks/useBrands'
 import { useCategories } from '../../hooks/useCategories'
@@ -7,8 +7,21 @@ interface Props {
   collapsible?: boolean
 }
 
+const BUDGET_RANGES = [
+  { label: '0 - 500K',    min: null,      max: 500000    },
+  { label: '500K - 1M',   min: 500000,    max: 1000000   },
+  { label: '1M - 2M',     min: 1000000,   max: 2000000   },
+  { label: '2M - 3M',     min: 2000000,   max: 3000000   },
+  { label: '3M - 5M',     min: 3000000,   max: 5000000   },
+  { label: '5M - 10M',    min: 5000000,   max: 10000000  },
+  { label: 'Above 10M',   min: 10000000,  max: null      },
+] as const
+
 export default function FilterSidebar({ collapsible = false }: Props) {
   const [isOpen, setIsOpen] = useState(!collapsible)
+  const [searchInput, setSearchInput] = useState('')
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const [params, setParams] = useSearchParams()
   const { data: brands } = useBrands()
   const { data: categories } = useCategories()
@@ -18,19 +31,59 @@ export default function FilterSidebar({ collapsible = false }: Props) {
   const set = (key: string, value: string) => {
     setParams((prev) => {
       const next = new URLSearchParams(prev)
-      if (value) {
-        next.set(key, value)
+      if (value) next.set(key, value)
+      else next.delete(key)
+      next.delete('page')
+      return next
+    })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      setParams((prev) => {
+        const next = new URLSearchParams(prev)
+        if (value.trim()) next.set('search', value.trim())
+        else next.delete('search')
+        next.delete('page')
+        return next
+      })
+    }, 400)
+  }
+
+  const isRangeActive = (range: typeof BUDGET_RANGES[number]) => {
+    const min = get('min_price')
+    const max = get('max_price')
+    const minMatch = range.min === null ? !min : min === String(range.min)
+    const maxMatch = range.max === null ? !max : max === String(range.max)
+    return minMatch && maxMatch
+  }
+
+  const setBudget = (range: typeof BUDGET_RANGES[number]) => {
+    const active = isRangeActive(range)
+    setParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (active) {
+        next.delete('min_price')
+        next.delete('max_price')
       } else {
-        next.delete(key)
+        if (range.min !== null) next.set('min_price', String(range.min))
+        else next.delete('min_price')
+        if (range.max !== null) next.set('max_price', String(range.max))
+        else next.delete('max_price')
       }
       next.delete('page')
       return next
     })
   }
 
-  const clearAll = () => setParams({})
+  const clearAll = () => {
+    setSearchInput('')
+    setParams({})
+  }
 
-  const filterKeys = ['brand_id', 'category_id', 'condition', 'transmission', 'min_price', 'max_price', 'min_year', 'max_year']
+  const filterKeys = ['search', 'brand_id', 'category_id', 'condition', 'transmission', 'min_price', 'max_price', 'min_year', 'max_year']
   const hasFilters = filterKeys.some((k) => params.has(k))
   const activeCount = filterKeys.filter((k) => params.has(k)).length
 
@@ -76,6 +129,45 @@ export default function FilterSidebar({ collapsible = false }: Props) {
         {/* Filter fields */}
         {isOpen && (
           <div className={`space-y-4 sm:space-y-5 ${collapsible ? 'px-4 pb-4' : ''}`}>
+
+            {/* Search by name or brand */}
+            <FilterSection label="Search by name or brand">
+              <div className="relative">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchInput || params.get('search') || ''}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="e.g., Toyota, Prado, Vitz"
+                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-maroon-700/30 focus:border-maroon-700 text-gray-700 placeholder-gray-400"
+                />
+              </div>
+            </FilterSection>
+
+            {/* Budget range */}
+            <FilterSection label="Budget range">
+              <div className="space-y-1.5">
+                {BUDGET_RANGES.map((range) => (
+                  <button
+                    key={range.label}
+                    onClick={() => setBudget(range)}
+                    className={`w-full text-left text-sm px-3 py-2 rounded-xl border transition-colors ${
+                      isRangeActive(range)
+                        ? 'bg-maroon-800 text-white border-maroon-800 font-semibold'
+                        : 'border-gray-200 text-gray-600 hover:border-maroon-300 hover:text-maroon-700'
+                    }`}
+                  >
+                    {range.label}
+                  </button>
+                ))}
+              </div>
+            </FilterSection>
+
             {/* Brand */}
             <FilterSection label="Brand">
               <select
@@ -137,26 +229,6 @@ export default function FilterSidebar({ collapsible = false }: Props) {
               </select>
             </FilterSection>
 
-            {/* Price range */}
-            <FilterSection label="Price (KES)">
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={get('min_price')}
-                  onChange={(e) => set('min_price', e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-maroon-700/30 focus:border-maroon-700 text-gray-700"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={get('max_price')}
-                  onChange={(e) => set('max_price', e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-maroon-700/30 focus:border-maroon-700 text-gray-700"
-                />
-              </div>
-            </FilterSection>
-
             {/* Year range */}
             <FilterSection label="Year">
               <div className="flex gap-2">
@@ -178,6 +250,7 @@ export default function FilterSidebar({ collapsible = false }: Props) {
                 </select>
               </div>
             </FilterSection>
+
           </div>
         )}
       </div>

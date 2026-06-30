@@ -1,3 +1,6 @@
+import { motion } from 'framer-motion'
+import Reveal from '../ui/Reveal'
+
 const features = [
   {
     icon: (
@@ -41,7 +44,7 @@ export default function WhyChooseUs() {
   return (
     <section className="py-16 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 sm:mb-14">
+        <Reveal className="text-center mb-10 sm:mb-14">
           <p className="text-maroon-700 text-sm font-semibold uppercase tracking-wider mb-3">
             Why Moha Motors
           </p>
@@ -54,24 +57,35 @@ export default function WhyChooseUs() {
           <p className="text-gray-500 mt-3 sm:mt-4 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 sm:px-0">
             Over 15 years of trust, quality, and service. We're not just selling cars — we're building lasting relationships on the road.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-8">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+        >
           {features.map(({ icon, title, desc }) => (
-            <div
+            <motion.div
               key={title}
-              className="group flex sm:flex-col items-start sm:items-center gap-4 sm:gap-0 sm:text-center p-4 sm:p-0 rounded-2xl sm:rounded-none bg-gray-50 sm:bg-transparent"
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+              }}
+              whileHover={{ y: -6 }}
+              className="group flex sm:flex-col items-start sm:items-center gap-4 sm:gap-0 sm:text-center p-4 sm:p-5 rounded-2xl bg-gray-50 sm:bg-transparent sm:hover:bg-gray-50 sm:hover:shadow-lg sm:hover:shadow-gray-200/60 transition-all duration-300"
             >
-              <div className="inline-flex shrink-0 items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-maroon-50 text-maroon-800 sm:mb-5 group-hover:bg-maroon-800 group-hover:text-white transition-colors duration-300">
+              <div className="inline-flex shrink-0 items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-maroon-50 text-maroon-800 sm:mb-5 group-hover:bg-maroon-800 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300">
                 {icon}
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">{title}</h3>
                 <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">{desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

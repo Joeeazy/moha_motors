@@ -8,10 +8,11 @@ interface VehiclesResponse {
 
 export async function fetchVehicles(filters: VehicleFilters): Promise<VehiclesResponse> {
   const page = Number(filters.page ?? 1)
-  const limit = 12
+  const limit = Number(filters.limit ?? 12)
   const skip = (page - 1) * limit
 
   const params: Record<string, string | number> = { skip, limit }
+  if (filters.search) params.search = filters.search
   if (filters.brand_id) params.brand_id = filters.brand_id
   if (filters.category_id) params.category_id = filters.category_id
   if (filters.condition) params.condition = filters.condition
@@ -21,9 +22,8 @@ export async function fetchVehicles(filters: VehicleFilters): Promise<VehiclesRe
   if (filters.min_year) params.min_year = filters.min_year
   if (filters.max_year) params.max_year = filters.max_year
 
-  const { data } = await api.get<VehicleListItem[]>('/vehicles', { params })
-  // Backend returns array; wrap with pagination metadata
-  return { items: data, total: data.length < limit ? skip + data.length : skip + limit + 1 }
+  const { data } = await api.get<VehiclesResponse>('/vehicles', { params })
+  return data
 }
 
 export async function fetchVehicle(id: number): Promise<Vehicle> {

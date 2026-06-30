@@ -77,14 +77,20 @@ export default function Navbar() {
               </NavLink>
             ))}
 
-            <a
-              href="/#about"
-              className={`text-sm font-medium transition-colors ${
-                transparent ? 'text-white/80 hover:text-white' : 'text-gray-600 hover:text-maroon-800'
-              }`}
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:bg-maroon-700 after:transition-all ${
+                  isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full'
+                } ${
+                  transparent
+                    ? isActive ? 'text-white' : 'text-white/80 hover:text-white'
+                    : isActive ? 'text-maroon-800' : 'text-gray-600 hover:text-maroon-800'
+                }`
+              }
             >
-              About
-            </a>
+              Contact
+            </NavLink>
 
             <Link
               to="/inventory"
@@ -139,12 +145,16 @@ export default function Navbar() {
                 {label}
               </NavLink>
             ))}
-            <a
-              href="/#about"
-              className="flex items-center px-4 py-3.5 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-xl"
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3.5 text-base font-medium rounded-xl transition-colors ${
+                  isActive ? 'bg-maroon-50 text-maroon-800' : 'text-gray-700 hover:bg-gray-50'
+                }`
+              }
             >
-              About
-            </a>
+              Contact
+            </NavLink>
           </div>
           <div className="px-4 pt-6">
             <Link

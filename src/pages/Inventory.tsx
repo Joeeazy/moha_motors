@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
 import { useVehicles } from '../hooks/useVehicles'
 import CarCard from '../components/ui/CarCard'
@@ -12,6 +13,7 @@ export default function Inventory() {
   const [params, setParams] = useSearchParams()
 
   const filters = {
+    search: params.get('search') ?? undefined,
     brand_id: params.get('brand_id') ?? undefined,
     category_id: params.get('category_id') ?? undefined,
     condition: params.get('condition') ?? undefined,
@@ -37,7 +39,7 @@ export default function Inventory() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const activeFilterCount = ['brand_id', 'category_id', 'condition', 'transmission', 'min_price', 'max_price', 'min_year', 'max_year']
+  const activeFilterCount = ['search', 'brand_id', 'category_id', 'condition', 'transmission', 'min_price', 'max_price', 'min_year', 'max_year']
     .filter((k) => params.has(k)).length
 
   return (
@@ -77,7 +79,12 @@ export default function Inventory() {
                   'Loading...'
                 ) : data ? (
                   <>
-                    <span className="font-semibold text-gray-900">{data.items.length}</span> vehicles found
+                    <span className="font-semibold text-gray-900">{data.total}</span> vehicle{data.total !== 1 ? 's' : ''} found
+                    {filters.search && (
+                      <span className="ml-1">
+                        for <span className="font-semibold text-gray-700">"{filters.search}"</span>
+                      </span>
+                    )}
                     {isFetching && !isLoading && (
                       <span className="ml-2 text-maroon-600 text-xs">• Updating...</span>
                     )}
@@ -138,11 +145,25 @@ export default function Inventory() {
 
             {data && data.items.length > 0 && (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+                <motion.div
+                  key={currentPage}
+                  className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+                >
                   {data.items.map((vehicle) => (
-                    <CarCard key={vehicle.id} vehicle={vehicle} />
+                    <motion.div
+                      key={vehicle.id}
+                      variants={{
+                        hidden: { opacity: 0, y: 24 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+                      }}
+                    >
+                      <CarCard vehicle={vehicle} />
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
 
                 <Pagination
                   currentPage={currentPage}

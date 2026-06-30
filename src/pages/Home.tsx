@@ -1,7 +1,7 @@
 import Hero from '../components/sections/Hero'
 import FeaturedCars from '../components/sections/FeaturedCars'
-import WhyChooseUs from '../components/sections/WhyChooseUs'
 import AboutSection from '../components/sections/AboutSection'
+import WhyChooseUs from '../components/sections/WhyChooseUs'
 import WhatsAppButton from '../components/ui/WhatsAppButton'
 
 export default function Home() {
@@ -9,8 +9,8 @@ export default function Home() {
     <main>
       <Hero />
       <FeaturedCars />
-      <WhyChooseUs />
       <AboutSection />
+      <WhyChooseUs />
       <WhatsAppButton />
     </main>
   )

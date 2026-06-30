@@ -45,7 +45,7 @@ export interface Vehicle extends VehicleListItem {
 }
 
 export interface InquiryCreate {
-  vehicle_id: number
+  vehicle_id?: number
   name: string
   email: string
   phone: string
@@ -62,6 +62,7 @@ export interface Options {
 }
 
 export interface VehicleFilters {
+  search?: string
   brand_id?: string
   category_id?: string
   condition?: string
@@ -71,4 +72,5 @@ export interface VehicleFilters {
   min_year?: string
   max_year?: string
   page?: string
+  limit?: string
 }

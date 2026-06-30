@@ -1,43 +1,64 @@
+import { motion } from 'framer-motion'
+
 export default function AboutSection() {
   return (
-    <section id="about" className="py-16 sm:py-20 bg-gray-950 text-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="about" className="relative py-16 sm:py-20 bg-gray-950 text-white overflow-hidden">
+      {/* Ambient glow */}
+      <div className="pointer-events-none absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-maroon-700/20 blur-3xl animate-float-slow" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           {/* Image mosaic */}
-          <div className="relative grid grid-cols-2 gap-3 sm:gap-4 h-64 sm:h-80 lg:h-[480px]">
-            <div className="rounded-2xl overflow-hidden">
+          <motion.div
+            className="relative grid grid-cols-2 gap-3 sm:gap-4 h-64 sm:h-80 lg:h-[480px]"
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="rounded-2xl overflow-hidden group">
               <img
                 src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=600&q=80"
                 alt="Luxury car"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
             </div>
             <div className="flex flex-col gap-3 sm:gap-4">
-              <div className="rounded-2xl overflow-hidden flex-1">
+              <div className="rounded-2xl overflow-hidden flex-1 group">
                 <img
                   src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80"
                   alt="Sports car"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
-              <div className="rounded-2xl overflow-hidden flex-1">
+              <div className="rounded-2xl overflow-hidden flex-1 group">
                 <img
                   src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=600&q=80"
                   alt="SUV"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
             </div>
 
-            {/* Floating badge — tucked inside on mobile, overflowing on lg+ */}
-            <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 lg:-bottom-4 lg:-right-4 bg-maroon-800 text-white rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-xl">
+            {/* Floating badge — gently bobs */}
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 lg:-bottom-4 lg:-right-4 bg-maroon-800 text-white rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-xl shadow-maroon-950/50"
+            >
               <p className="text-2xl sm:text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>15+</p>
               <p className="text-xs text-maroon-200 mt-0.5 uppercase tracking-wider">Years in Business</p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Text content */}
-          <div className="lg:pt-4">
+          <motion.div
+            className="lg:pt-4"
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
             <p className="text-maroon-400 text-sm font-semibold uppercase tracking-wider mb-3 sm:mb-4">
               Our Story
             </p>
@@ -75,7 +96,7 @@ export default function AboutSection() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
