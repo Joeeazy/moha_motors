@@ -34,6 +34,7 @@ const Categories = lazy(() => import('./pages/admin/Categories'))
 const Inquiries = lazy(() => import('./pages/admin/Inquiries'))
 const Profile = lazy(() => import('./pages/admin/Profile'))
 const Admins = lazy(() => import('./pages/admin/Admins'))
+const Guide = lazy(() => import('./pages/admin/Guide'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,6 +117,7 @@ export default function App() {
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="profile" element={<Profile />} />
               <Route path="admins" element={<Admins />} />
+              <Route path="guide" element={<Guide />} />
               {/* Unknown /admin/* subpaths */}
               <Route path="*" element={withSkeleton(<NotFound />, <PageFallback />)} />
             </Route>
