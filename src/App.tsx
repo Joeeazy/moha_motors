@@ -9,6 +9,9 @@ import ProtectedRoute from './components/admin/ProtectedRoute'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import LoadingSpinner from './components/ui/LoadingSpinner'
+import InventorySkeleton from './components/ui/InventorySkeleton'
+import CarDetailSkeleton from './components/ui/CarDetailSkeleton'
+import ContactSkeleton from './components/ui/ContactSkeleton'
 
 import Home from './pages/Home'
 
@@ -50,13 +53,16 @@ function BuyerLayout() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-1">
-        <Suspense fallback={<PageFallback />}>
-          <Outlet />
-        </Suspense>
+        <Outlet />
       </div>
       <Footer />
     </div>
   )
+}
+
+/** Wrap a lazy page in a Suspense boundary with a layout-matched skeleton. */
+function withSkeleton(node: React.ReactNode, fallback: React.ReactNode) {
+  return <Suspense fallback={fallback}>{node}</Suspense>
 }
 
 export default function App() {
@@ -68,10 +74,10 @@ export default function App() {
             {/* Buyer-facing routes */}
             <Route element={<BuyerLayout />}>
               <Route path="/" element={<Home />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/inventory/:id" element={<CarDetail />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="/inventory" element={withSkeleton(<Inventory />, <InventorySkeleton />)} />
+              <Route path="/inventory/:id" element={withSkeleton(<CarDetail />, <CarDetailSkeleton />)} />
+              <Route path="/contact" element={withSkeleton(<Contact />, <ContactSkeleton />)} />
+              <Route path="*" element={withSkeleton(<NotFound />, <PageFallback />)} />
             </Route>
 
             {/* Admin routes */}
