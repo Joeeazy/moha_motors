@@ -1,0 +1,3 @@
+# SPA fallback — let React Router handle all client-side routes.
+# Without this, deep links (e.g. /admin, /inventory/5) 404 on direct load/refresh.
+/*    /index.html   200

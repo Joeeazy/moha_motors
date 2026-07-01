@@ -107,6 +107,8 @@ export default function App() {
               <Route path="categories" element={<Categories />} />
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="profile" element={<Profile />} />
+              {/* Unknown /admin/* subpaths */}
+              <Route path="*" element={withSkeleton(<NotFound />, <PageFallback />)} />
             </Route>
           </Routes>
         </BrowserRouter>
