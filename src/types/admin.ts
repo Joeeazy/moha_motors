@@ -5,6 +5,8 @@ export interface AdminUser {
   name: string
   email: string
   is_admin: boolean
+  is_active?: boolean
+  created_at?: string
 }
 
 export interface Stats {
@@ -32,7 +34,8 @@ export interface AdminVehicleListItem {
   year: number
   price: number
   color: string
-  condition: 'new' | 'used'
+  seats: number | null
+  condition: 'new' | 'used' | null
   transmission: 'automatic' | 'manual' | 'semi-automatic'
   is_available: boolean
   images: AdminVehicleImage[]
@@ -40,32 +43,35 @@ export interface AdminVehicleListItem {
 }
 
 export interface AdminVehicle extends AdminVehicleListItem {
-  model: string
+  model: string | null
   mileage: number
   engine_type: 'petrol' | 'diesel' | 'electric' | 'hybrid'
   engine_size: number | null
   horsepower: number | null
-  drive_type: 'FWD' | 'RWD' | 'AWD' | '4WD'
+  drive_type: 'FWD' | 'RWD' | 'AWD' | '4WD' | null
   fuel_efficiency: number | null
   description: string | null
   updated_at: string
 }
 
 export interface VehicleCreatePayload {
+  // Required
   title: string
   brand_id: number
   category_id: number
-  model: string
   year: number
   price: number
   color: string
-  mileage: number
-  condition: 'new' | 'used'
-  engine_type: 'petrol' | 'diesel' | 'electric' | 'hybrid'
-  engine_size?: number | null
-  horsepower?: number | null
+  engine_type: 'petrol' | 'diesel' | 'electric' | 'hybrid'  // Fuel Type
+  engine_size: number                                        // Engine capacity
+  seats: number                                              // No. of seats
   transmission: 'automatic' | 'manual' | 'semi-automatic'
-  drive_type: 'FWD' | 'RWD' | 'AWD' | '4WD'
+  // Optional
+  model?: string | null
+  mileage?: number
+  condition?: 'new' | 'used' | null
+  horsepower?: number | null
+  drive_type?: 'FWD' | 'RWD' | 'AWD' | '4WD' | null
   fuel_efficiency?: number | null
   description?: string | null
   is_available: boolean

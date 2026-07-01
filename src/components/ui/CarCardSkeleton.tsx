@@ -35,7 +35,7 @@ export default function CarCardSkeleton() {
 /** A responsive grid of skeleton cards for list loading states. */
 export function CarCardSkeletonGrid({
   count = 8,
-  className = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6',
+  className = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6',
 }: {
   count?: number
   className?: string

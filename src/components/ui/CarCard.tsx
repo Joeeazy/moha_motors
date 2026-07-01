@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { VehicleListItem } from '../../types'
 import { formatPrice, getPrimaryImage, capitalize } from '../../utils/format'
 import { useTilt } from '../../hooks/useTilt'
+import FavoriteButton from './FavoriteButton'
 
 interface Props {
   vehicle: VehicleListItem
@@ -35,6 +36,9 @@ export default function CarCard({ vehicle }: Props) {
             onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK }}
             loading="lazy"
           />
+
+          {/* Save / favorite */}
+          <FavoriteButton vehicle={vehicle} />
           {/* Shine sweep on hover */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <div className="absolute top-0 -left-1/3 h-full w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-[shine_1.1s_ease-in-out]" />
@@ -43,16 +47,18 @@ export default function CarCard({ vehicle }: Props) {
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Condition badge */}
-          <span
-            className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide backdrop-blur-sm ${
-              vehicle.condition === 'new'
-                ? 'bg-emerald-100/90 text-emerald-700'
-                : 'bg-amber-100/90 text-amber-700'
-            }`}
-            style={{ transform: 'translateZ(40px)' }}
-          >
-            {vehicle.condition}
-          </span>
+          {vehicle.condition && (
+            <span
+              className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide backdrop-blur-sm ${
+                vehicle.condition === 'new'
+                  ? 'bg-emerald-100/90 text-emerald-700'
+                  : 'bg-amber-100/90 text-amber-700'
+              }`}
+              style={{ transform: 'translateZ(40px)' }}
+            >
+              {vehicle.condition}
+            </span>
+          )}
 
           {/* Availability */}
           {!vehicle.is_available && (

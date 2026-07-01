@@ -2,6 +2,7 @@ import { useState, type FormEvent, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { updateMe, changePassword } from '../../api/admin/auth'
 import { useAuth } from '../../contexts/AuthContext'
+import PasswordInput from '../../components/ui/PasswordInput'
 
 export default function Profile() {
   const { user } = useAuth()
@@ -117,8 +118,7 @@ export default function Profile() {
         <form onSubmit={handlePwSubmit} className="space-y-4">
           <div>
             <label className={labelCls}>Current Password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               value={pwForm.current_password}
               onChange={e => setPwForm(prev => ({ ...prev, current_password: e.target.value }))}
@@ -127,8 +127,7 @@ export default function Profile() {
           </div>
           <div>
             <label className={labelCls}>New Password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={6}
               value={pwForm.new_password}
@@ -138,8 +137,7 @@ export default function Profile() {
           </div>
           <div>
             <label className={labelCls}>Confirm New Password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               value={pwForm.confirm_password}
               onChange={e => setPwForm(prev => ({ ...prev, confirm_password: e.target.value }))}

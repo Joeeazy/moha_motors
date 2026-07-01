@@ -3,7 +3,7 @@ export default function ContactSkeleton() {
     <>
       {/* Hero bar */}
       <div className="bg-gray-950 pt-20 sm:pt-28 pb-12 sm:pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="skeleton h-3 w-24 rounded mb-3" style={{ backgroundColor: '#2a2a2e' }} />
           <div className="skeleton h-8 w-52 rounded mb-3" style={{ backgroundColor: '#2a2a2e' }} />
           <div className="skeleton h-4 w-full max-w-xl rounded" style={{ backgroundColor: '#2a2a2e' }} />
@@ -11,7 +11,7 @@ export default function ContactSkeleton() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Left: contact cards */}
           <div>

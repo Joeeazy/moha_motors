@@ -43,7 +43,7 @@ const features = [
 export default function WhyChooseUs() {
   return (
     <section className="py-16 sm:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center mb-10 sm:mb-14">
           <p className="text-maroon-700 text-sm font-semibold uppercase tracking-wider mb-3">
             Why Moha Motors

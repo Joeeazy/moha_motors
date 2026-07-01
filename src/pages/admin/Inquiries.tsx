@@ -47,7 +47,7 @@ export default function Inquiries() {
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 1
 
   return (
-    <div className="p-6 lg:p-8 max-w-6xl mx-auto">
+    <div className="p-6 lg:p-8 max-w-[1400px] mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Inquiries</h1>
         <p className="text-gray-500 text-sm mt-0.5">

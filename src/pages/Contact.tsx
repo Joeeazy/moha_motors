@@ -90,7 +90,7 @@ export default function Contact() {
     <>
       {/* Hero */}
       <div className="bg-gray-950 pt-20 sm:pt-28 pb-12 sm:pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-maroon-400 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
             Get in Touch
           </p>
@@ -107,7 +107,7 @@ export default function Contact() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
           {/* Contact cards */}

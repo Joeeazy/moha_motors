@@ -25,7 +25,8 @@ export interface VehicleListItem {
   year: number
   price: number
   color: string
-  condition: 'new' | 'used'
+  seats: number | null
+  condition: 'new' | 'used' | null
   transmission: 'automatic' | 'manual' | 'semi-automatic'
   is_available: boolean
   images: VehicleImage[]
@@ -33,12 +34,12 @@ export interface VehicleListItem {
 }
 
 export interface Vehicle extends VehicleListItem {
-  model: string
+  model: string | null
   mileage: number
   engine_type: 'petrol' | 'diesel' | 'electric' | 'hybrid'
   engine_size: number | null
   horsepower: number | null
-  drive_type: 'FWD' | 'RWD' | 'AWD' | '4WD'
+  drive_type: 'FWD' | 'RWD' | 'AWD' | '4WD' | null
   fuel_efficiency: number | null
   description: string | null
   updated_at: string

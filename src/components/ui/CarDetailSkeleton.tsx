@@ -3,13 +3,13 @@ export default function CarDetailSkeleton() {
     <>
       {/* Breadcrumb bar */}
       <div className="bg-gray-950 pt-20 sm:pt-24 pb-4 sm:pb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="skeleton h-3 w-52 rounded" style={{ backgroundColor: '#2a2a2e' }} />
         </div>
       </div>
 
       {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 xl:gap-14">
           {/* Left: gallery */}
           <div className="min-w-0">

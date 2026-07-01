@@ -6,7 +6,7 @@ export default function AboutSection() {
       {/* Ambient glow */}
       <div className="pointer-events-none absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-maroon-700/20 blur-3xl animate-float-slow" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           {/* Image mosaic */}
           <motion.div

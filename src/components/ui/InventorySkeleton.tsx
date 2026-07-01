@@ -5,7 +5,7 @@ export default function InventorySkeleton() {
     <>
       {/* Page header */}
       <div className="bg-gray-950 pt-20 sm:pt-28 pb-10 sm:pb-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="skeleton h-3 w-28 rounded mb-3" style={{ backgroundColor: '#2a2a2e' }} />
           <div className="skeleton h-8 w-56 rounded mb-3" style={{ backgroundColor: '#2a2a2e' }} />
           <div className="skeleton h-4 w-full max-w-md rounded" style={{ backgroundColor: '#2a2a2e' }} />
@@ -13,7 +13,7 @@ export default function InventorySkeleton() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <div className="flex gap-6 lg:gap-8 items-start">
           {/* Sidebar placeholder */}
           <div className="hidden lg:block w-64 shrink-0">

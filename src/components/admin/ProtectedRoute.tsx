@@ -1,16 +1,12 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import LoadingSpinner from '../ui/LoadingSpinner'
+import AdminSkeleton from '../ui/AdminSkeleton'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
 
   if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner size="lg" />
-      </div>
-    )
+    return <AdminSkeleton />
   }
 
   if (!user) return <Navigate to="/admin/login" replace />

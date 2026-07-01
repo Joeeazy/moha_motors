@@ -32,7 +32,7 @@ export default function Dashboard() {
   })
 
   return (
-    <div className="p-6 lg:p-8 max-w-6xl mx-auto">
+    <div className="p-6 lg:p-8 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="mb-8">
         <p className="text-xs font-semibold text-maroon-700 uppercase tracking-wider mb-1">

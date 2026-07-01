@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
+import { useFavorites } from '../../contexts/FavoritesContext'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const { count } = useFavorites()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -29,7 +31,7 @@ export default function Navbar() {
         transparent ? 'bg-transparent' : 'bg-white shadow-md'
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-[72px]">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group shrink-0">
@@ -92,6 +94,28 @@ export default function Navbar() {
               Contact
             </NavLink>
 
+            {/* Saved vehicles */}
+            <NavLink
+              to="/favorites"
+              aria-label="Saved vehicles"
+              className={({ isActive }) =>
+                `relative p-2 rounded-lg transition-colors ${
+                  transparent
+                    ? 'text-white/80 hover:text-white hover:bg-white/10'
+                    : isActive ? 'text-maroon-800 bg-maroon-50' : 'text-gray-600 hover:text-maroon-800 hover:bg-gray-100'
+                }`
+              }
+            >
+              <svg className="w-5 h-5" fill={count > 0 ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-maroon-700 text-white text-[10px] font-bold rounded-full ring-2 ring-white">
+                  {count}
+                </span>
+              )}
+            </NavLink>
+
             <Link
               to="/inventory"
               className="ml-1 px-4 lg:px-5 py-2 bg-maroon-800 text-white text-sm font-semibold rounded-lg hover:bg-maroon-900 transition-colors shadow-sm"
@@ -100,6 +124,24 @@ export default function Navbar() {
             </Link>
           </div>
 
+          {/* Mobile: favorites + hamburger */}
+          <div className="md:hidden flex items-center gap-1">
+            <NavLink
+              to="/favorites"
+              aria-label="Saved vehicles"
+              className={`relative p-2 rounded-lg transition-colors ${
+                transparent ? 'text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <svg className="w-6 h-6" fill={count > 0 ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {count > 0 && (
+                <span className="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-maroon-700 text-white text-[10px] font-bold rounded-full ring-2 ring-white">
+                  {count}
+                </span>
+              )}
+            </NavLink>
           {/* Mobile hamburger */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -117,6 +159,7 @@ export default function Navbar() {
               )}
             </svg>
           </button>
+          </div>
         </div>
       </nav>
 
@@ -154,6 +197,26 @@ export default function Navbar() {
               }
             >
               Contact
+            </NavLink>
+            <NavLink
+              to="/favorites"
+              className={({ isActive }) =>
+                `flex items-center justify-between px-4 py-3.5 text-base font-medium rounded-xl transition-colors ${
+                  isActive ? 'bg-maroon-50 text-maroon-800' : 'text-gray-700 hover:bg-gray-50'
+                }`
+              }
+            >
+              <span className="flex items-center gap-3">
+                <svg className="w-5 h-5" fill={count > 0 ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                Saved Vehicles
+              </span>
+              {count > 0 && (
+                <span className="min-w-[22px] h-[22px] px-1.5 flex items-center justify-center bg-maroon-700 text-white text-xs font-bold rounded-full">
+                  {count}
+                </span>
+              )}
             </NavLink>
           </div>
           <div className="px-4 pt-6">

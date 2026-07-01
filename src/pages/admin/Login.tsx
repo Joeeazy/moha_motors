@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import PasswordInput from '../../components/ui/PasswordInput'
 
 export default function Login() {
   const { login } = useAuth()
@@ -65,12 +66,12 @@ export default function Login() {
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
               Password
             </label>
-            <input
-              type="password"
+            <PasswordInput
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              toggleClassName="text-gray-400 hover:text-gray-200"
               className="w-full bg-gray-700 border border-gray-600 text-white rounded-xl px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-maroon-600 focus:border-maroon-600 transition-colors"
             />
           </div>

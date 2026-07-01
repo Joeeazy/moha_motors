@@ -9,6 +9,7 @@ import { formatPrice, formatMileage, capitalize, buildWhatsAppUrl } from '../uti
 import CarDetailSkeleton from '../components/ui/CarDetailSkeleton'
 import WhatsAppButton from '../components/ui/WhatsAppButton'
 import CarCard from '../components/ui/CarCard'
+import FavoriteButton from '../components/ui/FavoriteButton'
 import type { InquiryCreate } from '../types'
 
 const FALLBACK = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80'
@@ -85,14 +86,15 @@ export default function CarDetail() {
 
   const specs = [
     { label: 'Brand', value: vehicle.brand.name },
-    { label: 'Model', value: vehicle.model },
+    { label: 'Model', value: vehicle.model || '—' },
     { label: 'Year', value: vehicle.year },
-    { label: 'Condition', value: capitalize(vehicle.condition) },
+    { label: 'Seats', value: vehicle.seats ?? '—' },
+    { label: 'Condition', value: vehicle.condition ? capitalize(vehicle.condition) : '—' },
     { label: 'Mileage', value: formatMileage(vehicle.mileage) },
     { label: 'Engine', value: `${capitalize(vehicle.engine_type)}${vehicle.engine_size ? ` ${vehicle.engine_size}L` : ''}` },
     { label: 'Horsepower', value: vehicle.horsepower ? `${vehicle.horsepower} hp` : '—' },
     { label: 'Transmission', value: capitalize(vehicle.transmission) },
-    { label: 'Drive Type', value: vehicle.drive_type },
+    { label: 'Drive Type', value: vehicle.drive_type || '—' },
     { label: 'Fuel Efficiency', value: vehicle.fuel_efficiency ? `${vehicle.fuel_efficiency} L/100km` : '—' },
     { label: 'Color', value: vehicle.color },
     { label: 'Category', value: vehicle.category.name },
@@ -104,7 +106,7 @@ export default function CarDetail() {
     <>
       {/* ── Breadcrumb bar ── */}
       <div className="bg-gray-950 pt-20 sm:pt-24 pb-4 sm:pb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-gray-500 overflow-x-auto whitespace-nowrap pb-1">
             <Link to="/" className="hover:text-white transition-colors shrink-0">Home</Link>
             <span className="text-gray-700">/</span>
@@ -116,7 +118,7 @@ export default function CarDetail() {
       </div>
 
       {/* ── Main content ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
 
         {/* Two-column grid: stacked on mobile, side-by-side from md */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 xl:gap-14">
@@ -212,9 +214,10 @@ export default function CarDetail() {
               {[
                 { icon: '📅', val: vehicle.year },
                 { icon: '⚙️', val: capitalize(vehicle.transmission) },
-                { icon: '✨', val: capitalize(vehicle.condition) },
+                { icon: '🪑', val: vehicle.seats ? `${vehicle.seats} seats` : null },
+                { icon: '✨', val: vehicle.condition ? capitalize(vehicle.condition) : null },
                 { icon: '🚗', val: vehicle.drive_type },
-              ].map(({ icon, val }) => (
+              ].filter(({ val }) => val).map(({ icon, val }) => (
                 <span
                   key={String(val)}
                   className="inline-flex items-center gap-1.5 text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full font-medium transition-colors"
@@ -268,6 +271,7 @@ export default function CarDetail() {
                 </svg>
                 Send Inquiry
               </button>
+              <FavoriteButton vehicle={vehicle} variant="solid" className="sm:flex-none" />
             </div>
           </div>
         </div>
@@ -376,7 +380,7 @@ export default function CarDetail() {
       {/* ── Similar Vehicles ── */}
       {similarVehicles.length > 0 && (
         <div className="mt-12 sm:mt-16 pb-8 sm:pb-16 border-t border-gray-100 pt-10 sm:pt-14">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-6 sm:mb-8 gap-4">
               <h2
                 className="text-xl sm:text-2xl font-bold text-gray-900"

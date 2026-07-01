@@ -46,7 +46,7 @@ export default function Inventory() {
     <>
       {/* Page header */}
       <div className="bg-gray-950 pt-20 sm:pt-28 pb-10 sm:pb-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-maroon-400 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2">
             Our Collection
           </p>
@@ -63,7 +63,7 @@ export default function Inventory() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <div className="flex gap-6 lg:gap-8 items-start">
           {/* Desktop sidebar */}
           <div className="hidden lg:block w-64 shrink-0">
@@ -147,7 +147,7 @@ export default function Inventory() {
               <>
                 <motion.div
                   key={currentPage}
-                  className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"
+                  className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6"
                   initial="hidden"
                   animate="visible"
                   variants={{ visible: { transition: { staggerChildren: 0.05 } } }}

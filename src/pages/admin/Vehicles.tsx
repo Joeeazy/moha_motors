@@ -38,7 +38,7 @@ export default function Vehicles() {
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 1
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="p-6 lg:p-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>

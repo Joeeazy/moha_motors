@@ -20,13 +20,14 @@ interface FormState {
   year: string
   price: string
   color: string
+  seats: string
   mileage: string
-  condition: 'new' | 'used'
-  engine_type: 'petrol' | 'diesel' | 'electric' | 'hybrid'
+  condition: '' | 'new' | 'used'
+  engine_type: '' | 'petrol' | 'diesel' | 'electric' | 'hybrid'
   engine_size: string
   horsepower: string
-  transmission: 'automatic' | 'manual' | 'semi-automatic'
-  drive_type: 'FWD' | 'RWD' | 'AWD' | '4WD'
+  transmission: '' | 'automatic' | 'manual' | 'semi-automatic'
+  drive_type: '' | 'FWD' | 'RWD' | 'AWD' | '4WD'
   fuel_efficiency: string
   description: string
   is_available: boolean
@@ -35,28 +36,31 @@ interface FormState {
 const EMPTY_FORM: FormState = {
   title: '', brand_id: '', category_id: '', model: '',
   year: String(new Date().getFullYear()), price: '', color: '',
-  mileage: '0', condition: 'used', engine_type: 'petrol',
-  engine_size: '', horsepower: '', transmission: 'automatic',
-  drive_type: 'FWD', fuel_efficiency: '', description: '',
+  seats: '', mileage: '0', condition: '', engine_type: '',
+  engine_size: '', horsepower: '', transmission: '',
+  drive_type: '', fuel_efficiency: '', description: '',
   is_available: true,
 }
 
 function toPayload(f: FormState): VehicleCreatePayload {
   return {
+    // Required
     title: f.title,
     brand_id: Number(f.brand_id),
     category_id: Number(f.category_id),
-    model: f.model,
     year: Number(f.year),
     price: Number(f.price),
     color: f.color,
-    mileage: Number(f.mileage),
-    condition: f.condition,
-    engine_type: f.engine_type,
-    transmission: f.transmission,
-    drive_type: f.drive_type,
+    engine_type: f.engine_type as Exclude<FormState['engine_type'], ''>,
+    engine_size: Number(f.engine_size),
+    seats: Number(f.seats),
+    transmission: f.transmission as Exclude<FormState['transmission'], ''>,
+    // Optional
     is_available: f.is_available,
-    engine_size: f.engine_size ? Number(f.engine_size) : null,
+    model: f.model || null,
+    mileage: Number(f.mileage),
+    condition: f.condition || null,
+    drive_type: f.drive_type || null,
     horsepower: f.horsepower ? Number(f.horsepower) : null,
     fuel_efficiency: f.fuel_efficiency ? Number(f.fuel_efficiency) : null,
     description: f.description || null,
@@ -117,17 +121,18 @@ export default function VehicleForm() {
         title: vehicle.title,
         brand_id: String(vehicle.brand.id),
         category_id: String(vehicle.category.id),
-        model: vehicle.model,
+        model: vehicle.model ?? '',
         year: String(vehicle.year),
         price: String(vehicle.price),
         color: vehicle.color,
+        seats: vehicle.seats != null ? String(vehicle.seats) : '',
         mileage: String(vehicle.mileage),
-        condition: vehicle.condition,
+        condition: vehicle.condition ?? '',
         engine_type: vehicle.engine_type,
         engine_size: vehicle.engine_size != null ? String(vehicle.engine_size) : '',
         horsepower: vehicle.horsepower != null ? String(vehicle.horsepower) : '',
         transmission: vehicle.transmission,
-        drive_type: vehicle.drive_type,
+        drive_type: vehicle.drive_type ?? '',
         fuel_efficiency: vehicle.fuel_efficiency != null ? String(vehicle.fuel_efficiency) : '',
         description: vehicle.description ?? '',
         is_available: vehicle.is_available,
@@ -156,6 +161,14 @@ export default function VehicleForm() {
     setSuccess('')
     if (!form.brand_id || !form.category_id) {
       setError('Please select a brand and category.')
+      return
+    }
+    if (!form.engine_type) {
+      setError('Please select a fuel type.')
+      return
+    }
+    if (!form.transmission) {
+      setError('Please select a transmission.')
       return
     }
 
@@ -242,8 +255,26 @@ export default function VehicleForm() {
 
   if (isEdit && vehicleLoading) {
     return (
-      <div className="p-8 flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Loading vehicle...</div>
+      <div className="p-6 lg:p-8 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-7">
+          <div className="skeleton w-9 h-9 rounded-lg" />
+          <div className="skeleton h-6 w-48 rounded" />
+        </div>
+        {/* Form fields */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 sm:p-6 space-y-5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i}>
+              <div className="skeleton h-2.5 w-28 rounded mb-2" />
+              <div className="skeleton h-11 w-full rounded-xl" />
+            </div>
+          ))}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="skeleton h-11 rounded-xl" />
+            <div className="skeleton h-11 rounded-xl" />
+          </div>
+          <div className="skeleton h-28 w-full rounded-xl" />
+        </div>
       </div>
     )
   }
@@ -299,10 +330,6 @@ export default function VehicleForm() {
               </select>
             </div>
             <div>
-              <label className={labelCls}>Model</label>
-              <input type="text" required value={form.model} onChange={e => f('model', e.target.value)} placeholder="e.g. RAV4" className={inputCls} />
-            </div>
-            <div>
               <label className={labelCls}>Year</label>
               <input type="number" required min={1990} max={2030} value={form.year} onChange={e => f('year', e.target.value)} className={inputCls} />
             </div>
@@ -315,14 +342,23 @@ export default function VehicleForm() {
               <input type="text" required value={form.color} onChange={e => f('color', e.target.value)} placeholder="e.g. Pearl White" className={inputCls} />
             </div>
             <div>
-              <label className={labelCls}>Condition</label>
-              <select value={form.condition} onChange={e => f('condition', e.target.value as 'new' | 'used')} className={selectCls}>
+              <label className={labelCls}>No. of Seats</label>
+              <input type="number" required min={1} max={50} value={form.seats} onChange={e => f('seats', e.target.value)} placeholder="e.g. 5" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Model <span className="font-normal normal-case text-gray-300">optional</span></label>
+              <input type="text" value={form.model} onChange={e => f('model', e.target.value)} placeholder="e.g. RAV4" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Condition <span className="font-normal normal-case text-gray-300">optional</span></label>
+              <select value={form.condition} onChange={e => f('condition', e.target.value as FormState['condition'])} className={selectCls}>
+                <option value="">Not specified</option>
                 <option value="new">New</option>
                 <option value="used">Used</option>
               </select>
             </div>
             <div>
-              <label className={labelCls}>Mileage (km)</label>
+              <label className={labelCls}>Mileage (km) <span className="font-normal normal-case text-gray-300">optional</span></label>
               <input type="number" min={0} value={form.mileage} onChange={e => f('mileage', e.target.value)} className={inputCls} />
             </div>
           </div>
@@ -334,15 +370,17 @@ export default function VehicleForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Transmission</label>
-              <select value={form.transmission} onChange={e => f('transmission', e.target.value as typeof form.transmission)} className={selectCls}>
+              <select required value={form.transmission} onChange={e => f('transmission', e.target.value as typeof form.transmission)} className={selectCls}>
+                <option value="" disabled>Select transmission</option>
                 <option value="automatic">Automatic</option>
                 <option value="manual">Manual</option>
                 <option value="semi-automatic">Semi-Automatic</option>
               </select>
             </div>
             <div>
-              <label className={labelCls}>Drive Type</label>
-              <select value={form.drive_type} onChange={e => f('drive_type', e.target.value as typeof form.drive_type)} className={selectCls}>
+              <label className={labelCls}>Drive Type <span className="font-normal normal-case text-gray-300">optional</span></label>
+              <select value={form.drive_type} onChange={e => f('drive_type', e.target.value as FormState['drive_type'])} className={selectCls}>
+                <option value="">Not specified</option>
                 <option value="FWD">FWD</option>
                 <option value="RWD">RWD</option>
                 <option value="AWD">AWD</option>
@@ -350,8 +388,9 @@ export default function VehicleForm() {
               </select>
             </div>
             <div>
-              <label className={labelCls}>Engine Type</label>
-              <select value={form.engine_type} onChange={e => f('engine_type', e.target.value as typeof form.engine_type)} className={selectCls}>
+              <label className={labelCls}>Fuel Type</label>
+              <select required value={form.engine_type} onChange={e => f('engine_type', e.target.value as typeof form.engine_type)} className={selectCls}>
+                <option value="" disabled>Select fuel type</option>
                 <option value="petrol">Petrol</option>
                 <option value="diesel">Diesel</option>
                 <option value="electric">Electric</option>
@@ -359,8 +398,8 @@ export default function VehicleForm() {
               </select>
             </div>
             <div>
-              <label className={labelCls}>Engine Size (L) <span className="font-normal normal-case text-gray-300">optional</span></label>
-              <input type="number" min={0} step={0.1} value={form.engine_size} onChange={e => f('engine_size', e.target.value)} placeholder="e.g. 2.5" className={inputCls} />
+              <label className={labelCls}>Engine Capacity (L)</label>
+              <input type="number" required min={0} step={0.1} value={form.engine_size} onChange={e => f('engine_size', e.target.value)} placeholder="e.g. 2.5" className={inputCls} />
             </div>
             <div>
               <label className={labelCls}>Horsepower <span className="font-normal normal-case text-gray-300">optional</span></label>

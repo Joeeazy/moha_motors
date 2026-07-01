@@ -4,14 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { AuthProvider } from './contexts/AuthContext'
+import { FavoritesProvider } from './contexts/FavoritesContext'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
-import LoadingSpinner from './components/ui/LoadingSpinner'
 import InventorySkeleton from './components/ui/InventorySkeleton'
 import CarDetailSkeleton from './components/ui/CarDetailSkeleton'
 import ContactSkeleton from './components/ui/ContactSkeleton'
+import AdminSkeleton from './components/ui/AdminSkeleton'
 
 import Home from './pages/Home'
 
@@ -19,6 +20,7 @@ import Home from './pages/Home'
 const Inventory = lazy(() => import('./pages/Inventory'))
 const CarDetail = lazy(() => import('./pages/CarDetail'))
 const Contact = lazy(() => import('./pages/Contact'))
+const Favorites = lazy(() => import('./pages/Favorites'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout'))
@@ -30,6 +32,7 @@ const Brands = lazy(() => import('./pages/admin/Brands'))
 const Categories = lazy(() => import('./pages/admin/Categories'))
 const Inquiries = lazy(() => import('./pages/admin/Inquiries'))
 const Profile = lazy(() => import('./pages/admin/Profile'))
+const Admins = lazy(() => import('./pages/admin/Admins'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,8 +45,10 @@ const queryClient = new QueryClient({
 
 function PageFallback() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <LoadingSpinner size="lg" />
+    <div className="min-h-[60vh] max-w-[1600px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-16">
+      <div className="skeleton h-8 w-1/3 rounded mb-4" />
+      <div className="skeleton h-4 w-2/3 rounded mb-2" />
+      <div className="skeleton h-4 w-1/2 rounded" />
     </div>
   )
 }
@@ -69,6 +74,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <FavoritesProvider>
         <BrowserRouter>
           <Routes>
             {/* Buyer-facing routes */}
@@ -77,6 +83,7 @@ export default function App() {
               <Route path="/inventory" element={withSkeleton(<Inventory />, <InventorySkeleton />)} />
               <Route path="/inventory/:id" element={withSkeleton(<CarDetail />, <CarDetailSkeleton />)} />
               <Route path="/contact" element={withSkeleton(<Contact />, <ContactSkeleton />)} />
+              <Route path="/favorites" element={withSkeleton(<Favorites />, <PageFallback />)} />
               <Route path="*" element={withSkeleton(<NotFound />, <PageFallback />)} />
             </Route>
 
@@ -93,7 +100,7 @@ export default function App() {
               path="/admin"
               element={
                 <ProtectedRoute>
-                  <Suspense fallback={<PageFallback />}>
+                  <Suspense fallback={<AdminSkeleton />}>
                     <AdminLayout />
                   </Suspense>
                 </ProtectedRoute>
@@ -107,11 +114,13 @@ export default function App() {
               <Route path="categories" element={<Categories />} />
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="admins" element={<Admins />} />
               {/* Unknown /admin/* subpaths */}
               <Route path="*" element={withSkeleton(<NotFound />, <PageFallback />)} />
             </Route>
           </Routes>
         </BrowserRouter>
+        </FavoritesProvider>
       </AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
