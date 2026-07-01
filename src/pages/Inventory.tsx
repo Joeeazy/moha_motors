@@ -2,9 +2,9 @@ import { motion } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
 import { useVehicles } from '../hooks/useVehicles'
 import CarCard from '../components/ui/CarCard'
+import { CarCardSkeletonGrid } from '../components/ui/CarCardSkeleton'
 import FilterSidebar from '../components/ui/FilterSidebar'
 import Pagination from '../components/ui/Pagination'
-import LoadingSpinner from '../components/ui/LoadingSpinner'
 import WhatsAppButton from '../components/ui/WhatsAppButton'
 
 const PAGE_SIZE = 12
@@ -117,7 +117,7 @@ export default function Inventory() {
               <FilterSidebar collapsible={true} />
             </div>
 
-            {isLoading && <LoadingSpinner size="lg" label="Fetching vehicles..." />}
+            {isLoading && <CarCardSkeletonGrid count={9} />}
 
             {isError && (
               <div className="text-center py-16 sm:py-20">

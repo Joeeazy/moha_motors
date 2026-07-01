@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useVehicles } from '../../hooks/useVehicles'
 import CarCard from '../ui/CarCard'
-import LoadingSpinner from '../ui/LoadingSpinner'
+import { CarCardSkeletonGrid } from '../ui/CarCardSkeleton'
 import Reveal from '../ui/Reveal'
 
 export default function FeaturedCars() {
@@ -35,7 +35,12 @@ export default function FeaturedCars() {
           </Link>
         </Reveal>
 
-        {isLoading && <LoadingSpinner size="lg" label="Loading featured cars..." />}
+        {isLoading && (
+          <CarCardSkeletonGrid
+            count={4}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6"
+          />
+        )}
 
         {isError && (
           <div className="text-center py-12 text-gray-500">

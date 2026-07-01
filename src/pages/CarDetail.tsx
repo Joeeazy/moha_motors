@@ -6,7 +6,7 @@ import { submitInquiry } from '../api/inquiries'
 import { fetchWhatsAppNumber } from '../api/inquiries'
 import { fetchVehicles } from '../api/vehicles'
 import { formatPrice, formatMileage, capitalize, buildWhatsAppUrl } from '../utils/format'
-import LoadingSpinner from '../components/ui/LoadingSpinner'
+import CarDetailSkeleton from '../components/ui/CarDetailSkeleton'
 import WhatsAppButton from '../components/ui/WhatsAppButton'
 import CarCard from '../components/ui/CarCard'
 import type { InquiryCreate } from '../types'
@@ -59,11 +59,7 @@ export default function CarDetail() {
   }
 
   if (isLoading) {
-    return (
-      <div className="pt-32 pb-20">
-        <LoadingSpinner size="lg" label="Loading vehicle details..." />
-      </div>
-    )
+    return <CarDetailSkeleton />
   }
 
   if (isError || !vehicle) {
