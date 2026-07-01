@@ -4,6 +4,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchAdminVehicles, deleteVehicle } from '../../api/admin/vehicles'
 import { fetchAdminBrands } from '../../api/admin/brands'
 import { formatPrice, getPrimaryImage } from '../../utils/format'
+import { notifySuccess, notifyError } from '../../lib/notify'
+import { confirmDialog } from '../../lib/confirm'
+import type { AdminVehicleListItem } from '../../types/admin'
 
 const PAGE_SIZE = 20
 
@@ -12,7 +15,6 @@ export default function Vehicles() {
   const [page, setPage] = useState(0)
   const [isAvailable, setIsAvailable] = useState<boolean | undefined>(undefined)
   const [brandId, setBrandId] = useState<number | undefined>(undefined)
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'vehicles', page, isAvailable, brandId],
@@ -31,9 +33,20 @@ export default function Vehicles() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'vehicles'] })
       qc.invalidateQueries({ queryKey: ['admin', 'stats'] })
-      setConfirmDelete(null)
+      notifySuccess('Vehicle deleted.')
     },
+    onError: (err) => notifyError(err, 'Could not delete the vehicle.'),
   })
+
+  const handleDelete = async (v: AdminVehicleListItem) => {
+    const ok = await confirmDialog({
+      title: 'Delete this vehicle?',
+      text: `"${v.title}" and its images will be permanently removed. This cannot be undone.`,
+      confirmText: 'Delete',
+      danger: true,
+    })
+    if (ok) deleteMutation.mutate(v.id)
+  }
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 1
 
@@ -154,30 +167,13 @@ export default function Vehicles() {
                         >
                           Edit
                         </Link>
-                        {confirmDelete === v.id ? (
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => deleteMutation.mutate(v.id)}
-                              disabled={deleteMutation.isPending}
-                              className="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
-                            >
-                              {deleteMutation.isPending ? '...' : 'Confirm'}
-                            </button>
-                            <button
-                              onClick={() => setConfirmDelete(null)}
-                              className="text-xs font-semibold text-gray-500 px-2 py-1.5 hover:text-gray-700"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setConfirmDelete(v.id)}
-                            className="text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 hover:border-red-300 transition-colors"
-                          >
-                            Delete
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleDelete(v)}
+                          disabled={deleteMutation.isPending}
+                          className="text-xs font-semibold text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 hover:border-red-300 transition-colors disabled:opacity-60"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>

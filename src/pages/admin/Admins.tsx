@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
 import { listAdmins, createAdmin, deleteAdmin } from '../../api/admin/auth'
 import { useAuth } from '../../contexts/AuthContext'
 import PasswordInput from '../../components/ui/PasswordInput'
+import { notifySuccess, notifyError } from '../../lib/notify'
+import { confirmDialog } from '../../lib/confirm'
+import type { AdminUser } from '../../types/admin'
 
 export default function Admins() {
   const qc = useQueryClient()
@@ -12,8 +14,6 @@ export default function Admins() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [error, setError] = useState('')
 
   const { data: admins, isLoading } = useQuery({
     queryKey: ['admin', 'admins'],
@@ -26,23 +26,28 @@ export default function Admins() {
   const createMutation = useMutation({
     mutationFn: () => createAdmin({ name: name.trim(), email: email.trim(), password }),
     onSuccess: () => {
-      setName(''); setEmail(''); setPassword(''); setError('')
+      setName(''); setEmail(''); setPassword('')
       invalidate()
+      notifySuccess('Admin created.')
     },
-    onError: (err) => {
-      const detail = (err as AxiosError<{ detail?: string }>).response?.data?.detail
-      setError(detail || 'Could not create admin. Check the details and try again.')
-    },
+    onError: (err) => notifyError(err, 'Could not create admin. Check the details and try again.'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteAdmin(id),
-    onSuccess: () => { setConfirmDelete(null); invalidate() },
-    onError: (err) => {
-      const detail = (err as AxiosError<{ detail?: string }>).response?.data?.detail
-      setError(detail || 'Could not delete admin.')
-    },
+    onSuccess: () => { invalidate(); notifySuccess('Admin removed.') },
+    onError: (err) => notifyError(err, 'Could not delete admin.'),
   })
+
+  const handleDelete = async (a: AdminUser) => {
+    const ok = await confirmDialog({
+      title: 'Remove this admin?',
+      text: `${a.name} (${a.email}) will lose admin access.`,
+      confirmText: 'Remove',
+      danger: true,
+    })
+    if (ok) deleteMutation.mutate(a.id)
+  }
 
   const canSubmit = name.trim() && email.trim() && password.length >= 8
 
@@ -53,12 +58,6 @@ export default function Admins() {
         <p className="text-gray-500 text-sm mt-0.5">{admins?.length ?? 0} admin accounts</p>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5">
-          {error}
-          <button onClick={() => setError('')} className="ml-3 font-semibold underline text-xs">Dismiss</button>
-        </div>
-      )}
 
       {/* Add admin */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-5">
@@ -129,24 +128,9 @@ export default function Admins() {
 
                 {a.id !== user?.id && (
                   <div className="flex items-center gap-2 shrink-0">
-                    {confirmDelete === a.id ? (
-                      <>
-                        <button
-                          onClick={() => deleteMutation.mutate(a.id)}
-                          disabled={deleteMutation.isPending}
-                          className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
-                        >
-                          {deleteMutation.isPending ? '...' : 'Confirm'}
-                        </button>
-                        <button onClick={() => setConfirmDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1">
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button onClick={() => setConfirmDelete(a.id)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1">
-                        Delete
-                      </button>
-                    )}
+                    <button onClick={() => handleDelete(a)} disabled={deleteMutation.isPending} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 disabled:opacity-60">
+                      Delete
+                    </button>
                   </div>
                 )}
               </li>

@@ -8,14 +8,14 @@ import {
   uploadBrandLogo,
 } from '../../api/admin/brands'
 import type { Brand } from '../../types/index'
+import { notifySuccess, notifyError } from '../../lib/notify'
+import { confirmDialog } from '../../lib/confirm'
 
 export default function Brands() {
   const qc = useQueryClient()
   const [newName, setNewName] = useState('')
   const [editId, setEditId] = useState<number | null>(null)
   const [editName, setEditName] = useState('')
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [error, setError] = useState('')
   const logoRefs = useRef<Record<number, HTMLInputElement | null>>({})
 
   const { data: brands, isLoading } = useQuery({
@@ -31,26 +31,26 @@ export default function Brands() {
 
   const createMutation = useMutation({
     mutationFn: () => createBrand(newName.trim()),
-    onSuccess: () => { setNewName(''); invalidate() },
-    onError: () => setError('Brand name already exists or is invalid.'),
+    onSuccess: () => { setNewName(''); invalidate(); notifySuccess('Brand added.') },
+    onError: (err) => notifyError(err, 'Brand name already exists or is invalid.'),
   })
 
   const updateMutation = useMutation({
     mutationFn: () => updateBrand(editId!, editName.trim()),
-    onSuccess: () => { setEditId(null); setEditName(''); invalidate() },
-    onError: () => setError('Could not update brand.'),
+    onSuccess: () => { setEditId(null); setEditName(''); invalidate(); notifySuccess('Brand updated.') },
+    onError: (err) => notifyError(err, 'Could not update brand.'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteBrand(id),
-    onSuccess: () => { setConfirmDelete(null); invalidate() },
-    onError: () => setError('Cannot delete a brand that has vehicles.'),
+    onSuccess: () => { invalidate(); notifySuccess('Brand deleted.') },
+    onError: (err) => notifyError(err, 'Cannot delete a brand that has vehicles.'),
   })
 
   const logoMutation = useMutation({
     mutationFn: ({ id, file }: { id: number; file: File }) => uploadBrandLogo(id, file),
-    onSuccess: () => invalidate(),
-    onError: () => setError('Logo upload failed. Use JPEG/PNG/WebP under 5MB.'),
+    onSuccess: () => { invalidate(); notifySuccess('Logo updated.') },
+    onError: (err) => notifyError(err, 'Logo upload failed. Use JPEG/PNG/WebP under 5MB.'),
   })
 
   const handleLogoUpload = (brand: Brand, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +60,17 @@ export default function Brands() {
     e.target.value = ''
   }
 
-  const startEdit = (b: Brand) => { setEditId(b.id); setEditName(b.name); setError('') }
+  const startEdit = (b: Brand) => { setEditId(b.id); setEditName(b.name) }
+
+  const handleDelete = async (b: Brand) => {
+    const ok = await confirmDialog({
+      title: 'Delete this brand?',
+      text: `"${b.name}" will be permanently removed.`,
+      confirmText: 'Delete',
+      danger: true,
+    })
+    if (ok) deleteMutation.mutate(b.id)
+  }
 
   return (
     <div className="p-6 lg:p-8 max-w-3xl mx-auto">
@@ -68,13 +78,6 @@ export default function Brands() {
         <h1 className="text-2xl font-bold text-gray-900">Brands</h1>
         <p className="text-gray-500 text-sm mt-0.5">{brands?.length ?? 0} brands</p>
       </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5">
-          {error}
-          <button onClick={() => setError('')} className="ml-3 font-semibold underline text-xs">Dismiss</button>
-        </div>
-      )}
 
       {/* Add brand */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-5">
@@ -172,24 +175,9 @@ export default function Brands() {
                     <button onClick={() => startEdit(b)} className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1">
                       Edit
                     </button>
-                    {confirmDelete === b.id ? (
-                      <>
-                        <button
-                          onClick={() => deleteMutation.mutate(b.id)}
-                          disabled={deleteMutation.isPending}
-                          className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
-                        >
-                          {deleteMutation.isPending ? '...' : 'Confirm'}
-                        </button>
-                        <button onClick={() => setConfirmDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1">
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button onClick={() => setConfirmDelete(b.id)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1">
-                        Delete
-                      </button>
-                    )}
+                    <button onClick={() => handleDelete(b)} disabled={deleteMutation.isPending} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 disabled:opacity-60">
+                      Delete
+                    </button>
                   </div>
                 )}
               </li>

@@ -11,6 +11,7 @@ import {
 import { fetchAdminBrands } from '../../api/admin/brands'
 import { fetchAdminCategories } from '../../api/admin/categories'
 import type { VehicleCreatePayload, AdminVehicleImage } from '../../types/admin'
+import { notifySuccess, notifyError } from '../../lib/notify'
 
 interface FormState {
   title: string
@@ -75,8 +76,6 @@ export default function VehicleForm() {
   const qc = useQueryClient()
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [imageUploading, setImageUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState('')
 
@@ -144,7 +143,6 @@ export default function VehicleForm() {
   const saveMutation = useMutation({
     mutationFn: (payload: VehicleCreatePayload) =>
       isEdit ? updateVehicle(vehicleId!, payload) : createVehicle(payload),
-    onError: () => setError('Failed to save. Please check the form and try again.'),
   })
 
   const deleteImageMutation = useMutation({
@@ -152,25 +150,17 @@ export default function VehicleForm() {
     onSuccess: (_, imageId) => {
       setImages(prev => prev.filter(img => img.id !== imageId))
       qc.invalidateQueries({ queryKey: ['admin', 'vehicle', vehicleId] })
+      notifySuccess('Image removed.')
     },
+    onError: (err) => notifyError(err, 'Could not remove the image.'),
   })
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setSuccess('')
-    if (!form.brand_id || !form.category_id) {
-      setError('Please select a brand and category.')
-      return
-    }
-    if (!form.engine_type) {
-      setError('Please select a fuel type.')
-      return
-    }
-    if (!form.transmission) {
-      setError('Please select a transmission.')
-      return
-    }
+    if (saveMutation.isPending || imageUploading) return  // guard against double-submit
+    if (!form.brand_id || !form.category_id) return notifyError(null, 'Please select a brand and category.')
+    if (!form.engine_type) return notifyError(null, 'Please select a fuel type.')
+    if (!form.transmission) return notifyError(null, 'Please select a transmission.')
 
     try {
       const saved = await saveMutation.mutateAsync(toPayload(form))
@@ -179,15 +169,14 @@ export default function VehicleForm() {
 
       if (isEdit) {
         setImages(saved.images)
-        setSuccess('Changes saved.')
-        setTimeout(() => setSuccess(''), 3000)
+        notifySuccess('Changes saved.')
         return
       }
 
-      // Create mode: upload queued images then navigate to edit
+      // Create mode: upload queued images, then leave the form so it can't be resubmitted
+      let failed = 0
       if (queuedFiles.length > 0) {
         setImageUploading(true)
-        let failed = 0
         for (let i = 0; i < queuedFiles.length; i++) {
           setUploadProgress(`Uploading image ${i + 1} of ${queuedFiles.length}...`)
           try {
@@ -198,14 +187,17 @@ export default function VehicleForm() {
         }
         setImageUploading(false)
         setUploadProgress('')
-        if (failed > 0) {
-          setError(`Vehicle created, but ${failed} image(s) failed to upload. You can add them on the edit page.`)
-        }
       }
 
-      navigate(`/admin/vehicles/${saved.id}/edit`, { replace: true })
-    } catch {
-      // saveMutation.onError handles the error message
+      if (failed > 0) {
+        notifyError(null, `Vehicle created, but ${failed} image(s) failed to upload. Add them from the edit page.`)
+      } else {
+        notifySuccess('Vehicle created successfully.')
+      }
+      // Redirect to the list (replace) so the create form isn't shown again → no duplicate entries
+      navigate('/admin/vehicles', { replace: true })
+    } catch (err) {
+      notifyError(err, 'Failed to save. Please check the form and try again.')
     }
   }
 
@@ -235,8 +227,9 @@ export default function VehicleForm() {
       }
       setImages(result.images)
       qc.invalidateQueries({ queryKey: ['admin', 'vehicle', vehicleId] })
-    } catch {
-      setError('Image upload failed. Check file type (JPEG/PNG/WebP) and size (max 5MB).')
+      notifySuccess('Image uploaded.')
+    } catch (err) {
+      notifyError(err, 'Image upload failed. Check file type (JPEG/PNG/WebP) and size (max 5MB).')
     } finally {
       setImageUploading(false)
       setUploadProgress('')
@@ -294,17 +287,6 @@ export default function VehicleForm() {
           {isEdit ? 'Edit Vehicle' : 'Add New Vehicle'}
         </h1>
       </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3 mb-5">
-          {success}
-        </div>
-      )}
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Basic info */}

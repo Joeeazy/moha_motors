@@ -3,15 +3,13 @@ import { useMutation } from '@tanstack/react-query'
 import { updateMe, changePassword } from '../../api/admin/auth'
 import { useAuth } from '../../contexts/AuthContext'
 import PasswordInput from '../../components/ui/PasswordInput'
+import { notifySuccess, notifyError } from '../../lib/notify'
 
 export default function Profile() {
   const { user } = useAuth()
 
   const [profileForm, setProfileForm] = useState({ name: '', email: '' })
-  const [profileMsg, setProfileMsg] = useState({ text: '', ok: true })
-
   const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' })
-  const [pwMsg, setPwMsg] = useState({ text: '', ok: true })
 
   useEffect(() => {
     if (user) setProfileForm({ name: user.name, email: user.email })
@@ -19,35 +17,31 @@ export default function Profile() {
 
   const profileMutation = useMutation({
     mutationFn: () => updateMe({ name: profileForm.name, email: profileForm.email }),
-    onSuccess: () => setProfileMsg({ text: 'Profile updated.', ok: true }),
-    onError: () => setProfileMsg({ text: 'Failed to update. Email may already be in use.', ok: false }),
+    onSuccess: () => notifySuccess('Profile updated.'),
+    onError: (err) => notifyError(err, 'Failed to update. Email may already be in use.'),
   })
 
   const pwMutation = useMutation({
     mutationFn: () => changePassword(pwForm.current_password, pwForm.new_password),
     onSuccess: () => {
-      setPwMsg({ text: 'Password changed successfully.', ok: true })
+      notifySuccess('Password changed successfully.')
       setPwForm({ current_password: '', new_password: '', confirm_password: '' })
     },
-    onError: () => setPwMsg({ text: 'Incorrect current password.', ok: false }),
+    onError: (err) => notifyError(err, 'Incorrect current password.'),
   })
 
   const handleProfileSubmit = (e: FormEvent) => {
     e.preventDefault()
-    setProfileMsg({ text: '', ok: true })
     profileMutation.mutate()
   }
 
   const handlePwSubmit = (e: FormEvent) => {
     e.preventDefault()
-    setPwMsg({ text: '', ok: true })
     if (pwForm.new_password !== pwForm.confirm_password) {
-      setPwMsg({ text: 'New passwords do not match.', ok: false })
-      return
+      return notifyError(null, 'New passwords do not match.')
     }
     if (pwForm.new_password.length < 6) {
-      setPwMsg({ text: 'Password must be at least 6 characters.', ok: false })
-      return
+      return notifyError(null, 'Password must be at least 6 characters.')
     }
     pwMutation.mutate()
   }
@@ -65,12 +59,6 @@ export default function Profile() {
       {/* Profile details */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 sm:p-6 mb-6">
         <h2 className="text-sm font-bold text-gray-900 mb-5">Account Details</h2>
-
-        {profileMsg.text && (
-          <div className={`text-sm rounded-xl px-4 py-3 mb-4 ${profileMsg.ok ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
-            {profileMsg.text}
-          </div>
-        )}
 
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <div>
@@ -108,12 +96,6 @@ export default function Profile() {
       {/* Password change */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 sm:p-6">
         <h2 className="text-sm font-bold text-gray-900 mb-5">Change Password</h2>
-
-        {pwMsg.text && (
-          <div className={`text-sm rounded-xl px-4 py-3 mb-4 ${pwMsg.ok ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
-            {pwMsg.text}
-          </div>
-        )}
 
         <form onSubmit={handlePwSubmit} className="space-y-4">
           <div>

@@ -7,14 +7,14 @@ import {
   deleteCategory,
 } from '../../api/admin/categories'
 import type { Category } from '../../types/index'
+import { notifySuccess, notifyError } from '../../lib/notify'
+import { confirmDialog } from '../../lib/confirm'
 
 export default function Categories() {
   const qc = useQueryClient()
   const [newName, setNewName] = useState('')
   const [editId, setEditId] = useState<number | null>(null)
   const [editName, setEditName] = useState('')
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
-  const [error, setError] = useState('')
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['admin', 'categories'],
@@ -29,23 +29,33 @@ export default function Categories() {
 
   const createMutation = useMutation({
     mutationFn: () => createCategory(newName.trim()),
-    onSuccess: () => { setNewName(''); invalidate() },
-    onError: () => setError('Category already exists or is invalid.'),
+    onSuccess: () => { setNewName(''); invalidate(); notifySuccess('Category added.') },
+    onError: (err) => notifyError(err, 'Category already exists or is invalid.'),
   })
 
   const updateMutation = useMutation({
     mutationFn: () => updateCategory(editId!, editName.trim()),
-    onSuccess: () => { setEditId(null); setEditName(''); invalidate() },
-    onError: () => setError('Could not update category.'),
+    onSuccess: () => { setEditId(null); setEditName(''); invalidate(); notifySuccess('Category updated.') },
+    onError: (err) => notifyError(err, 'Could not update category.'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteCategory(id),
-    onSuccess: () => { setConfirmDelete(null); invalidate() },
-    onError: () => setError('Cannot delete a category that has vehicles.'),
+    onSuccess: () => { invalidate(); notifySuccess('Category deleted.') },
+    onError: (err) => notifyError(err, 'Cannot delete a category that has vehicles.'),
   })
 
-  const startEdit = (c: Category) => { setEditId(c.id); setEditName(c.name); setError('') }
+  const startEdit = (c: Category) => { setEditId(c.id); setEditName(c.name) }
+
+  const handleDelete = async (c: Category) => {
+    const ok = await confirmDialog({
+      title: 'Delete this category?',
+      text: `"${c.name}" will be permanently removed.`,
+      confirmText: 'Delete',
+      danger: true,
+    })
+    if (ok) deleteMutation.mutate(c.id)
+  }
 
   return (
     <div className="p-6 lg:p-8 max-w-2xl mx-auto">
@@ -53,13 +63,6 @@ export default function Categories() {
         <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
         <p className="text-gray-500 text-sm mt-0.5">{categories?.length ?? 0} categories</p>
       </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5">
-          {error}
-          <button onClick={() => setError('')} className="ml-3 font-semibold underline text-xs">Dismiss</button>
-        </div>
-      )}
 
       {/* Add category */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-5">
@@ -135,24 +138,9 @@ export default function Categories() {
                     <button onClick={() => startEdit(c)} className="text-xs text-gray-500 hover:text-gray-700 font-medium px-2 py-1">
                       Edit
                     </button>
-                    {confirmDelete === c.id ? (
-                      <>
-                        <button
-                          onClick={() => deleteMutation.mutate(c.id)}
-                          disabled={deleteMutation.isPending}
-                          className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg disabled:opacity-60 transition-colors"
-                        >
-                          {deleteMutation.isPending ? '...' : 'Confirm'}
-                        </button>
-                        <button onClick={() => setConfirmDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 px-1">
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button onClick={() => setConfirmDelete(c.id)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1">
-                        Delete
-                      </button>
-                    )}
+                    <button onClick={() => handleDelete(c)} disabled={deleteMutation.isPending} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 disabled:opacity-60">
+                      Delete
+                    </button>
                   </div>
                 )}
               </li>

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchAdminInquiries, updateInquiryStatus, deleteInquiry } from '../../api/admin/inquiries'
 import type { AdminInquiry } from '../../types/admin'
+import { notifySuccess, notifyError } from '../../lib/notify'
+import { confirmDialog } from '../../lib/confirm'
 
 const PAGE_SIZE = 25
 
@@ -17,7 +19,6 @@ export default function Inquiries() {
   const [filterRead, setFilterRead] = useState<boolean | undefined>(undefined)
   const [filterResolved, setFilterResolved] = useState<boolean | undefined>(undefined)
   const [expanded, setExpanded] = useState<number | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'inquiries', page, filterRead, filterResolved],
@@ -36,13 +37,25 @@ export default function Inquiries() {
   const statusMutation = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: { is_read?: boolean; is_resolved?: boolean } }) =>
       updateInquiryStatus(id, payload),
-    onSuccess: () => invalidate(),
+    onSuccess: () => { invalidate(); notifySuccess('Inquiry updated.') },
+    onError: (err) => notifyError(err, 'Could not update the inquiry.'),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteInquiry(id),
-    onSuccess: () => { setConfirmDelete(null); invalidate() },
+    onSuccess: () => { invalidate(); notifySuccess('Inquiry deleted.') },
+    onError: (err) => notifyError(err, 'Could not delete the inquiry.'),
   })
+
+  const handleDelete = async (inquiry: AdminInquiry) => {
+    const ok = await confirmDialog({
+      title: 'Delete this inquiry?',
+      text: `The message from ${inquiry.name} will be permanently removed.`,
+      confirmText: 'Delete',
+      danger: true,
+    })
+    if (ok) deleteMutation.mutate(inquiry.id)
+  }
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 1
 
@@ -187,27 +200,13 @@ export default function Inquiries() {
                     </button>
 
                     <div className="ml-auto">
-                      {confirmDelete === inquiry.id ? (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => deleteMutation.mutate(inquiry.id)}
-                            disabled={deleteMutation.isPending}
-                            className="text-xs font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
-                          >
-                            {deleteMutation.isPending ? '...' : 'Delete'}
-                          </button>
-                          <button onClick={() => setConfirmDelete(null)} className="text-xs text-gray-400 hover:text-gray-600">
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setConfirmDelete(inquiry.id)}
-                          className="text-xs text-red-500 hover:text-red-700 font-medium"
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDelete(inquiry)}
+                        disabled={deleteMutation.isPending}
+                        className="text-xs text-red-500 hover:text-red-700 font-medium disabled:opacity-60"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
